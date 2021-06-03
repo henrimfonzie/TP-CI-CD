@@ -3,10 +3,18 @@
       stages {
         stage('Clone sources') {
             steps {
-                git url: 'https://github.com/vanessakovalsky/example-python.git'
+                git url: 'https://github.com/henrimfonzie/TP-CI-CD.git'
             }
         }
-        
+
+      stage('build') {
+            steps {
+        sh 'docker build -t python-tp:1.0 Docker/Dockerfile'
+        sh 'docker tag python-tp:1.0 henrimfonzie/python-tp-k8s:1.0'
+        sh 'docker push henrimfonzie/python-tp-k8s:1.0'
+        sh 'docker tag python-tp:1.0 henrimfonzie/python-tp-k8s'
+            }
+        }
        stage('Compile') { // Compile and do unit testing
              tools {
                gradle 'installGradle'
