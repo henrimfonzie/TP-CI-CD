@@ -1,0 +1,1 @@
+{"virtualbox":{"/home/shared":{"guestpath":"/home/shared","hostpath":"C:/Temp/TP-CI-CD/k8s/master","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/Temp/TP-CI-CD/k8s","disabled":false,"__vagrantfile":true}}}
