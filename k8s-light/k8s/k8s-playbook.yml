@@ -85,12 +85,16 @@
       command: dpkg -i /tmp/minikube_latest_amd64.deb
 
     - name: Set minikube default driver to docker
-      command: minikube config set driver docker
+      command: minikube config set driver none
       become: yes
       become_user: vagrant
 
-    - name: Setup minikube for vagrant user
-      tags: copy
+    - name: Set minikube starting
+      command: minikube start --driver=none
+      become: false
+      become_user: vagrant
+
+    - name: Copy minikube files for vagrant user
       become_method: sudo
       copy:
         remote_src: yes 
@@ -101,6 +105,21 @@
       loop:
         - /root/.kube
         - /root/.minikube
+
+    - name: Setup minikube for vagrant user
+      replace:
+        path: /home/vagrant/.kube/config
+        regexp: 'root'
+        replace: 'home/vagrant'
+      
+    - name: Launch deployments
+      tags: deploy
+      command: kubectl apply -f /home/shared/{{ item }}
+      loop:
+        - client-pod.yml
+        - dev-srv.yml
+        - test-srv.yml
+        - prod-srv.yml
 
   handlers:
     - name: docker status
