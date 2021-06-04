@@ -1,5 +1,5 @@
 IMAGE_NAME = "bento/ubuntu-21.04"
-NB_NODES = 3
+NB_NODES = 1
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -18,15 +18,23 @@ Vagrant.configure("2") do |config|
 			apt update
 			apt install -y ansible
 			cd /home/shared/
-			ansible-playbook -i targets master-playbook.yml
+			ansible-playbook -i targets master-playbook.yml --extra-var node_ip="192.168.50.10"
 		SHELL
     end
+	
 
     (1..NB_NODES).each do |i|
         config.vm.define "node-#{i}" do |node|
             node.vm.box = IMAGE_NAME
             node.vm.network "private_network", ip: "192.168.50.#{i + 10}"
             node.vm.hostname = "node-#{i}"
+			node.vm.synced_folder 'nodes', '/home/shared'
+			node.vm.provision 'shell', inline: <<-SHELL
+				apt update
+				apt install -y ansible
+				cd /home/shared/
+				ansible-playbook -i targets node-playbook.yml --extra-var node_ip="192.168.50.#{i + 10}"
+			SHELL
         end
     end
 end

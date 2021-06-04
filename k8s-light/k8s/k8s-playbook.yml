@@ -74,46 +74,33 @@
       vars:
         packages:
           - kubelet 
-          - kubeadm 
           - kubectl
 
-    - name: Configure node ip
-      lineinfile:
-        path: '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-        line: 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}"'
-        regexp: 'KUBELET_EXTRA_ARGS='
-        insertafter: '\[Service\]'
-        state: present
-      notify:
-        - restart kubelet
+    - name: Download minikube
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+        dest: /tmp/
 
-    # - name: Initialize the Kubernetes cluster using kubeadm
-    #   command: kubeadm init --config kubeadm-config.yml --node-name k8s-master
+    - name: Install minikube
+      command: dpkg -i /tmp/minikube_latest_amd64.deb
 
-    - name: Creates directory
-      file:
-        path: /home/vagrant/.kube
-        state: directory
+    - name: Set minikube default driver to docker
+      command: minikube config set driver docker
+      become: yes
+      become_user: vagrant
 
-    - name: Setup kubeconfig for vagrant user
+    - name: Setup minikube for vagrant user
       tags: copy
+      become_method: sudo
       copy:
-        remote_src: yes
-        src: /etc/kubernetes/admin.conf
-        dest: /home/vagrant/.kube/
+        remote_src: yes 
+        src: '{{ item }}'
+        dest: /home/vagrant/
         owner: vagrant
         group: vagrant
-
-    - name: Install calico pod network
-      become: false
-      command: kubectl create -f https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/calico.yaml
-
-    - name: Generate join command
-      command: kubeadm token create --print-join-command
-      register: join_command
-
-    - name: Copy join command to local file
-      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+      loop:
+        - /root/.kube
+        - /root/.minikube
 
   handlers:
     - name: docker status
