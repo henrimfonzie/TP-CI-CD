@@ -1,4 +1,4 @@
-**/.vagrant/
+**/.vagrant/*
 **.vdi
 **/.cache/
 **/.python_history
