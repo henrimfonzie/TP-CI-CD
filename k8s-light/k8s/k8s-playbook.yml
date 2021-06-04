@@ -25,15 +25,15 @@
         state: present
 
     - name: Install docker and its dependecies
-      apt: 
+      apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-        - docker-ce 
-        - docker-ce-cli 
-        - containerd.io
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
       notify:
         - docker status
 
@@ -41,7 +41,7 @@
       user:
         name: vagrant
         group: docker
-        
+
     - name: Remove swapfile from /etc/fstab
       mount:
         name: "{{ item }}"
@@ -53,8 +53,8 @@
 
     - name: Disable swap
       command: swapoff -a
-      when: ansible_swaptotal_mb > 0    
-      
+      when: ansible_swaptotal_mb > 0
+
     - name: Add an apt signing key for Kubernetes
       apt_key:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -67,13 +67,13 @@
         filename: kubernetes.list
 
     - name: Install Kubernetes binaries
-      apt: 
+      apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-          - kubelet 
+          - kubelet
           - kubectl
 
     - name: Download minikube
@@ -97,8 +97,8 @@
     - name: Copy minikube files for vagrant user
       become_method: sudo
       copy:
-        remote_src: yes 
-        src: '{{ item }}'
+        remote_src: yes
+        src: "{{ item }}"
         dest: /home/vagrant/
         owner: vagrant
         group: vagrant
@@ -109,25 +109,27 @@
     - name: Setup minikube for vagrant user
       replace:
         path: /home/vagrant/.kube/config
-        regexp: 'root'
-        replace: 'home/vagrant'
-      
-    - name: Launch deployments
-      tags: deploy
-      command: kubectl apply -f /home/shared/{{ item }}
-      loop:
-        - client-pod.yml
-        - dev-srv.yml
-        - test-srv.yml
-        - prod-srv.yml
+        regexp: "root"
+        replace: "home/vagrant"
+
+    # - name: Pause for waiting k8s default serviceAccount 
+    #   pause:
+    #     seconds: 15
+
+    # - name: Launch deployments
+    #   tags: deploy
+    #   command: kubectl apply -f /home/shared/{{ item }}
+    #   loop:
+    #     - dev-dpl.yml
+    #     - test-dpl.yml
+    #     - prod-dpl.yml
 
   handlers:
     - name: docker status
       service: name=docker state=started
 
     - name: restart kubelet
-      service: 
-        name: kubelet 
-        state: restarted 
+      service:
+        name: kubelet
+        state: restarted
         daemon_reload: yes
-    

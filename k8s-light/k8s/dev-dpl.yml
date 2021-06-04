@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-dpl
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: dev
+  template:
+    metadata:
+      name: dev-pod
+      labels:
+        # Champ non impose
+        app: dev
+    spec:
+      containers:
+      - name: dev
+        image: apalpant/python-tp-k8s:1.0
+# Saut de configuration
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-srv
+spec:
+  type: NodePort
+  selector:
+    # Correspond au label dans le dev-pod/labels
+    app: dev
+  ports:
+      - port: 3200    # accessibilité de ce service depuis l'intérieur du cluster
+        targetPort: 5000    # cible l'application serveur containerisé dans le pod referencé par ce selector
+        nodePort: 30007   # accessibilité pour l'accès depuis l'extérieur du cluster
