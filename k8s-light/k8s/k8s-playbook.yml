@@ -112,17 +112,73 @@
         regexp: "root"
         replace: "home/vagrant"
 
-    # - name: Pause for waiting k8s default serviceAccount 
-    #   pause:
-    #     seconds: 15
+    - name: Pause for waiting k8s default serviceAccount
+      pause:
+        seconds: 15
 
-    # - name: Launch deployments
-    #   tags: deploy
-    #   command: kubectl apply -f /home/shared/{{ item }}
+    - name: Launch deployments
+      tags: deploy
+      command: kubectl apply -f {{ item }}
+      args:
+        chdir: /home/shared/
+      loop:
+        - dev-dpl.yml
+        - test-dpl.yml
+        - prod-dpl.yml
+
+    # - name: Download kompose
+    #   get_url:
+    #     url: https://github.com/kubernetes/kompose/releases/download/v1.22.0/kompose-linux-amd64
+    #     dest: /usr/local/bin/kompose
+
+    # - name: Touch the same file, but add/remove some permissions
+    #   file:
+    #     path: /usr/local/bin/kompose
+    #     state: touch
+    #     mode: u+x,g+x,o+x
+
+    # - name: convert yml
+    #   tags: convert
+    #   command: kompose convert
+    #   args:
+    #     chdir: /home/shared/elk/
+
+    # - name: Launch elk
+    #   tags: elk
+    #   command: kubectl apply -f {{ item }}
+    #   args:
+    #     chdir: /home/shared/elk/
     #   loop:
-    #     - dev-dpl.yml
-    #     - test-dpl.yml
-    #     - prod-dpl.yml
+    #     - elasticsearch-deployment.yaml
+    #     - kibana-deployment.yaml
+    #     - logstash-deployment.yaml
+      
+    - name: Read-write git checkout from github
+      git:
+        repo: https://github.com/deviantony/docker-elk
+        dest: /home/shared/docker-elk/
+
+    - name: Download docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+
+    - name: Touch the same file, but add some permissions
+      file:
+        path: /usr/local/bin/docker-compose
+        state: touch
+        mode: u+x,g+x,o+x
+
+    - name: Copy python.conf 
+      copy:
+        src: /home/shared/python.conf
+        dest: /home/shared/docker-elk/logstash/pipelines    
+    
+    - name: docker-compose ELK
+      command: docker-compose up
+      args:
+        chdir: /home/shared/docker-elk/
+    
 
   handlers:
     - name: docker status

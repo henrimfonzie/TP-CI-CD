@@ -7,14 +7,16 @@ RUN apk update \
  && apk add git
 
 # Copie du depot
-RUN git clone https://github.com/vanessakovalsky/docker-elk.git
+RUN git clone https://github.com/vanessakovalsky/example-python.git
 
 # Copie du fichier main.py
-RUN cp docker-elk/python/src/main.py .
-RUN cp docker-elk/python/src/requirements.txt .
+RUN cp example-python/vagrant/src/main.py .
 
 # Suppression des dossiers inutiles
-RUN rm -r docker-elk/
+RUN rm -r example-python/
+
+# Copie du fichier des dependances
+COPY requirements.txt .
 
 # Installation des dependances
 RUN pip install -r requirements.txt
@@ -23,6 +25,6 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Suppression des fichiers inutiles
-RUN rm Dockerfile
+RUN rm requirements.txt Dockerfile
 
 CMD ["python3", "main.py"]

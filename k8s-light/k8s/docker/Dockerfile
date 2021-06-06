@@ -14,7 +14,7 @@ RUN cp docker-elk/python/src/main.py .
 RUN cp docker-elk/python/src/requirements.txt .
 
 # Suppression des dossiers inutiles
-RUN rm -r docker-elk/
+# RUN rm -r docker-elk/
 
 # Installation des dependances
 RUN pip install -r requirements.txt
