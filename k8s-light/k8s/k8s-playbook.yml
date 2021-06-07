@@ -174,10 +174,10 @@
         src: /home/shared/python.conf
         dest: /home/shared/docker-elk/logstash/pipelines    
     
-    - name: docker-compose ELK
-      command: docker-compose up
-      args:
-        chdir: /home/shared/docker-elk/
+    # - name: docker-compose ELK
+    #   command: docker-compose up
+    #   args:
+    #     chdir: /home/shared/docker-elk/
     
 
   handlers:
