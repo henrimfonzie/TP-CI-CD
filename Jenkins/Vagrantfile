@@ -32,7 +32,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :shell, :path => "install-python.sh"
   config.vm.provision :shell, :path => "install.sh"
   config.vm.provision :shell, :path => "install_docker.sh"
-  jenkins.vm.provision "shell", path: "install_ansible.sh"
   # Shared folder
   config.vm.synced_folder 'vagrant/', '/home/vagrant', create: true
 
