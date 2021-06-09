@@ -59,6 +59,9 @@ fi
 #Autorisation de l'acces jenkins
 ufw allow 8080/tcp
 
+# Creer un dossier
+mkdir /home/shared/
+
 #Affiche le password
 echo 'Mot de passe dans 1min en cours de generation PATIENTEZ SVP...:\n'
 sleep 1m

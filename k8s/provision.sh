@@ -2,6 +2,12 @@
 
 apt update
 
+# On change l'option PasswordAuthentication de no à yes dans le fichier sshd_config
+sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication no/g" /etc/ssh/sshd_config
+
+# On restart le service
+systemctl restart sshd
+
 apt install -y ansible
 
 cd /home/shared/

@@ -116,15 +116,15 @@
       pause:
         seconds: 15
 
-    - name: Launch deployments
-      tags: deploy
-      command: kubectl apply -f {{ item }}
-      args:
-        chdir: /home/shared/
-      loop:
-        - dev-dpl.yml
-        - test-dpl.yml
-        - prod-dpl.yml
+    # - name: Launch deployments
+    #   tags: deploy
+    #   command: kubectl apply -f {{ item }}
+    #   args:
+    #     chdir: /home/shared/
+    #   loop:
+    #     - dev-dpl.yml
+    #     - test-dpl.yml
+    #     - prod-dpl.yml
       
     - name: Read-write git checkout from github
       git:

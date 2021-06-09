@@ -1,0 +1,13 @@
+- hosts: k8s
+  become: true
+  tasks:
+    
+    - name: Launch deployments
+      tags: deploy
+      command: kubectl apply -f {{ item }}
+      args:
+        chdir: /home/shared/
+      loop:
+        - dev-dpl.yml
+        - test-dpl.yml
+        - prod-dpl.yml    

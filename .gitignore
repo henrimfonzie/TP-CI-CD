@@ -4,5 +4,6 @@
 **/.python_history
 **/__pycache__
 **/keys/
+**/.ssh/
 **/docker-elk/
 **/.sudo_as_admin_successful
