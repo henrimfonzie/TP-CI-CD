@@ -1,0 +1,18 @@
+IMAGE_NAME = "bento/ubuntu-21.04"
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 4096
+        v.cpus = 4
+    end
+      
+    config.vm.define "k8s" do |k8s|
+        k8s.vm.box = IMAGE_NAME
+        k8s.vm.network "private_network", ip: "192.168.50.10"
+        k8s.vm.hostname = "k8s"
+		k8s.vm.synced_folder 'k8s', '/home/shared'
+		k8s.vm.provision "shell", path: "provision.sh"
+    end
+end

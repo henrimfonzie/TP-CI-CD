@@ -1,0 +1,164 @@
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install packages that allow apt to be used over HTTPS
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+
+    - name: Add an apt signing key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+
+    - name: Install docker and its dependecies
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+      notify:
+        - docker status
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        group: docker
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+
+    - name: Add an apt signing key for Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Adding apt repository for Kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+
+    - name: Install Kubernetes binaries
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - kubelet
+          - kubectl
+
+    - name: Download minikube
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+        dest: /tmp/
+
+    - name: Install minikube
+      command: dpkg -i /tmp/minikube_latest_amd64.deb
+
+    - name: Set minikube default driver to docker
+      command: minikube config set driver none
+      become: yes
+      become_user: vagrant
+
+    - name: Set minikube starting
+      command: minikube start --driver=none
+      become: false
+      become_user: vagrant
+
+    - name: Copy minikube files for vagrant user
+      become_method: sudo
+      copy:
+        remote_src: yes
+        src: "{{ item }}"
+        dest: /home/vagrant/
+        owner: vagrant
+        group: vagrant
+      loop:
+        - /root/.kube
+        - /root/.minikube
+
+    - name: Setup minikube for vagrant user
+      replace:
+        path: /home/vagrant/.kube/config
+        regexp: "root"
+        replace: "home/vagrant"
+
+    - name: Pause for waiting k8s default serviceAccount
+      pause:
+        seconds: 15
+
+    - name: Launch deployments
+      tags: deploy
+      command: kubectl apply -f {{ item }}
+      args:
+        chdir: /home/shared/
+      loop:
+        - dev-dpl.yml
+        - test-dpl.yml
+        - prod-dpl.yml
+      
+    - name: Read-write git checkout from github
+      git:
+        repo: https://github.com/deviantony/docker-elk
+        dest: /home/shared/docker-elk/
+
+    - name: Download docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+
+    - name: Touch the same file, but add some permissions
+      file:
+        path: /usr/local/bin/docker-compose
+        state: touch
+        mode: u+x,g+x,o+x
+
+    - name: Copy python.conf 
+      copy:
+        src: /home/shared/python.conf
+        dest: /home/shared/docker-elk/logstash/pipeline   
+    
+    # - name: docker-compose ELK
+    #   command: docker-compose up
+    #   args:
+    #     chdir: /home/shared/docker-elk/
+    
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
+
+    - name: restart kubelet
+      service:
+        name: kubelet
+        state: restarted
+        daemon_reload: yes
