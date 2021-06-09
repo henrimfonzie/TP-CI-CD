@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: dev
-        image: apalpant/python-tp-k8s:1.1
+        image: henrimfonzie/python-tp-k8s
 # Saut de configuration
 ---
 

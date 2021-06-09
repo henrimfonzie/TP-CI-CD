@@ -18,7 +18,7 @@
     stage('test and stop') {
       steps {
         script{
-            dockerImage = docker.build ('$imagename', 'docker-python')
+            dockerImage = docker.build ('$imagename', 'docker-python-elk')
         }
       }
     }
