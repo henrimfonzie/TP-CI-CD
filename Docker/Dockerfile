@@ -27,4 +27,5 @@ COPY . .
 # Suppression des fichiers inutiles
 RUN rm requirements.txt Dockerfile
 
+
 CMD ["python3", "main.py"]
