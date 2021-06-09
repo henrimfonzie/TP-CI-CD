@@ -116,15 +116,15 @@
       pause:
         seconds: 15
 
-    # - name: Launch deployments
-    #   tags: deploy
-    #   command: kubectl apply -f {{ item }}
-    #   args:
-    #     chdir: /home/shared/
-    #   loop:
-    #     - dev-dpl.yml
-    #     - test-dpl.yml
-    #     - prod-dpl.yml
+    - name: Launch deployments
+      tags: deploy
+      command: kubectl apply -f {{ item }}
+      args:
+        chdir: /home/shared/
+      loop:
+        - dev-dpl.yml
+        - test-dpl.yml
+        - prod-dpl.yml
       
     - name: Read-write git checkout from github
       git:
@@ -145,13 +145,7 @@
     - name: Copy python.conf 
       copy:
         src: /home/shared/python.conf
-        dest: /home/shared/docker-elk/logstash/pipeline   
-    
-    # - name: docker-compose ELK
-    #   command: docker-compose up
-    #   args:
-    #     chdir: /home/shared/docker-elk/
-    
+        dest: /home/shared/docker-elk/logstash/pipeline       
 
   handlers:
     - name: docker status
