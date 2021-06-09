@@ -5,3 +5,4 @@
 **/__pycache__
 **/keys/
 **/docker-elk/
+**/.sudo_as_admin_successful
