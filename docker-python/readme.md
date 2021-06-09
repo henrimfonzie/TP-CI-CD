@@ -1,3 +1,9 @@
+# Introduction
+
+Le Dockerfile associé va permettre de construire une image basée sur le dépot https://github.com/vanessakovalsky/example-python.git
+
+Il s'agit d'un fichier python simple qui renvoie 'hello world devops' sur l'api '/'
+
 # Commandes
 
 ## Build image

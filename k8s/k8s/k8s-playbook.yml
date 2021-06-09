@@ -125,33 +125,6 @@
         - dev-dpl.yml
         - test-dpl.yml
         - prod-dpl.yml
-
-    # - name: Download kompose
-    #   get_url:
-    #     url: https://github.com/kubernetes/kompose/releases/download/v1.22.0/kompose-linux-amd64
-    #     dest: /usr/local/bin/kompose
-
-    # - name: Touch the same file, but add/remove some permissions
-    #   file:
-    #     path: /usr/local/bin/kompose
-    #     state: touch
-    #     mode: u+x,g+x,o+x
-
-    # - name: convert yml
-    #   tags: convert
-    #   command: kompose convert
-    #   args:
-    #     chdir: /home/shared/elk/
-
-    # - name: Launch elk
-    #   tags: elk
-    #   command: kubectl apply -f {{ item }}
-    #   args:
-    #     chdir: /home/shared/elk/
-    #   loop:
-    #     - elasticsearch-deployment.yaml
-    #     - kibana-deployment.yaml
-    #     - logstash-deployment.yaml
       
     - name: Read-write git checkout from github
       git:
@@ -172,7 +145,7 @@
     - name: Copy python.conf 
       copy:
         src: /home/shared/python.conf
-        dest: /home/shared/docker-elk/logstash/pipelines    
+        dest: /home/shared/docker-elk/logstash/pipeline   
     
     # - name: docker-compose ELK
     #   command: docker-compose up

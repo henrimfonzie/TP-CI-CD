@@ -13,3 +13,4 @@ cd ./docker-elk/
 docker-compose up --build -d
 
 echo "192.168.50.10		logstash" | sudo tee -a /etc/hosts
+echo "192.168.50.10		elasticsearch" | sudo tee -a /etc/hosts

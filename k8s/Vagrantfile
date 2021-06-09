@@ -1,40 +1,18 @@
 IMAGE_NAME = "bento/ubuntu-21.04"
-NB_NODES = 1
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
 
     config.vm.provider "virtualbox" do |v|
-        v.memory = 2048
-        v.cpus = 2
+        v.memory = 4096
+        v.cpus = 4
     end
       
-    config.vm.define "k8s-master" do |master|
-        master.vm.box = IMAGE_NAME
-        master.vm.network "private_network", ip: "192.168.50.10"
-        master.vm.hostname = "k8s-master"
-		master.vm.synced_folder 'master', '/home/shared'
-		master.vm.provision 'shell', inline: <<-SHELL
-			apt update
-			apt install -y ansible
-			cd /home/shared/
-			ansible-playbook -i targets master-playbook.yml --extra-var node_ip="192.168.50.10"
-		SHELL
-    end
-	
-
-    (1..NB_NODES).each do |i|
-        config.vm.define "node-#{i}" do |node|
-            node.vm.box = IMAGE_NAME
-            node.vm.network "private_network", ip: "192.168.50.#{i + 10}"
-            node.vm.hostname = "node-#{i}"
-			node.vm.synced_folder 'nodes', '/home/shared'
-			node.vm.provision 'shell', inline: <<-SHELL
-				apt update
-				apt install -y ansible
-				cd /home/shared/
-				ansible-playbook -i targets node-playbook.yml --extra-var node_ip="192.168.50.#{i + 10}"
-			SHELL
-        end
+    config.vm.define "k8s" do |k8s|
+        k8s.vm.box = IMAGE_NAME
+        k8s.vm.network "private_network", ip: "192.168.50.10"
+        k8s.vm.hostname = "k8s"
+		k8s.vm.synced_folder 'k8s', '/home/shared'
+		k8s.vm.provision "shell", path: "provision.sh"
     end
 end
