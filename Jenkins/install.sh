@@ -42,6 +42,9 @@ sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
 sudo apt -y update
 sudo apt -y install jenkins
 
+# droit jenkins
+sudo usermod -a -G docker jenkins
+
 ## Démarre le service Jenkins
 sudo service start jenkins
 
