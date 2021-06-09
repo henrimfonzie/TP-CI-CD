@@ -1,4 +1,11 @@
  pipeline {
+
+   environment {
+        imagename = "henrimfonzie/python-tp-k8s"
+        registryCredential = 'docker'
+        dockerImage = ''
+    }
+
   agent any
   stages {
 
@@ -8,36 +15,24 @@
       }
     }
 
-    stage('build') {
-      steps {
-        sh 'cd ./Docker && docker build -t python-tp:1.0 .'
-      }
-    }
-
-    stage('run') {
-      steps {
-        sh 'docker run --rm -p 5542:5000 -d --name python-tp python-tp:1.0'
-        sh 'docker tag python-tp:1.0 henrimfonzie/python-tp-k8s:1.0'
-      }
-    }
-
     stage('test and stop') {
       steps {
-        sh 'sleep 4'
-        sh 'curl http://192.168.33.20:5542'
-        sh 'echo $?'
-        sh 'sleep 4'
-        sh 'docker stop python-tp'
+        script{
+            dockerImage = docker.build ('$imagename', 'docker-python')
+        }
       }
     }
 
     stage('push Image') {
             steps{
-
-              sh 'docker push henrimfonzie/python-tp-k8s:1.0'
-
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest') 
+                    }
                 }
-        } 
+            }
+        }
 
     stage('deploy') {
             steps {
